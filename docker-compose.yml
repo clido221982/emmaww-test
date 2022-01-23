@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  bezkoder-api:
+    build: ./bezkoder-api
+    restart: unless-stopped
+    env_file: ./.env
+    ports:
+      - $NODE_LOCAL_PORT:$NODE_DOCKER_PORT
+    environment:
+      - CLIENT_ORIGIN=$CLIENT_ORIGIN
+    networks:
+      - backend
+      - frontend
+
+  bezkoder-ui:
+    depends_on:
+      - bezkoder-api
+    build:
+      context: ./bezkoder-ui
+      args:
+        - REACT_APP_API_BASE_URL=$CLIENT_API_BASE_URL
+    ports:
+      - $REACT_LOCAL_PORT:$REACT_DOCKER_PORT
+    networks:
+      - frontend  
+
+  redis:
+    image: redis
+
+volumes: 
+  db:
+
+networks:
+  backend:
+  frontend:
